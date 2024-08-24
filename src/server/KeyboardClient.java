@@ -7,12 +7,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 // Client handler for keyboard input
-public class InputClient implements Runnable {
+public class KeyboardClient implements Runnable {
     private String serverAddress;
     private int port;
     private Socket socket;
 
-    public InputClient(String serverAddress, int port) {
+    public KeyboardClient(String serverAddress, int port) {
         this.serverAddress = serverAddress;
         this.port = port;
     }
@@ -32,10 +32,10 @@ public class InputClient implements Runnable {
             }
 
         } catch (IOException e) {
-            System.err.println("InputClient: " + e.getMessage());
+            System.err.println("KeyboardClient: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            System.out.println("InputClient: cerrando ");
+            System.out.println("KeyboardClient: cerrando ");
             try {
                 socket.close();
             } catch (IOException e) {

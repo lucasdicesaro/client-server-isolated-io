@@ -46,7 +46,6 @@ public class ClientHandler implements Runnable {
 
         } catch (IOException e) {
             System.err.println("ClientHandler: " + e.getMessage());
-            e.printStackTrace();
         } finally {
             System.out.println("ClientHandler: cerrando ");
             try {

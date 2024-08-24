@@ -3,8 +3,8 @@ import java.net.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import client.ConsoleOutputClient;
-import client.InputClient;
+import client.KeyboardClient;
+import common.ConsoleClient;
 
 public class Client {
 
@@ -26,13 +26,13 @@ public class Client {
             System.out.println("Client started.");
 
             // Start the console output thread as a client
-            consoleInputHandlerExecutor.submit(new ConsoleOutputClient(LOOPBACK_ADDRESS, MY_PORT));
+            consoleInputHandlerExecutor.submit(new ConsoleClient(LOOPBACK_ADDRESS, MY_PORT));
             Socket consoleSocket = localMiniServerSocket.accept();
             // We open PrintWriter to write in console.
             PrintWriter consoleOut = new PrintWriter(consoleSocket.getOutputStream(), true);
 
             // Start the input handling thread as a client
-            consoleInputHandlerExecutor.submit(new InputClient(serverOut));
+            consoleInputHandlerExecutor.submit(new KeyboardClient(serverOut));
 
             String tcpMessageFromServer;
             while ((tcpMessageFromServer = serverIn.readLine()) != null) {

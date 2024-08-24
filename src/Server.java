@@ -4,9 +4,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import common.ConsoleClient;
 import server.ClientHandler;
-import server.ConsoleOutputClient;
-import server.InputClient;
+import server.KeyboardClient;
 
 public class Server {
 
@@ -16,8 +16,8 @@ public class Server {
 
     public static void main(String[] args) {
         ExecutorService clientHandlerExecutor = Executors.newFixedThreadPool(10);
-        ExecutorService consoleOutputExecutor = Executors.newSingleThreadExecutor();
-        ExecutorService inputHandlerExecutor = Executors.newSingleThreadExecutor();
+        ExecutorService consoleInputHandlerExecutor = Executors.newFixedThreadPool(2);
+
         ServerSocket serverSocket = null;
         ServerSocket miniServerSocket = null;
         try {
@@ -28,12 +28,12 @@ public class Server {
             System.out.println("Server started.");
 
             // Start the input handling thread as a client
-            inputHandlerExecutor.submit(new InputClient(LOOPBACK_ADDRESS, MY_PORT));
+            consoleInputHandlerExecutor.submit(new KeyboardClient(LOOPBACK_ADDRESS, MY_PORT));
             Socket inputSocket = miniServerSocket.accept();
             clientHandlerExecutor.submit(new ClientHandler(inputSocket));
 
             // Start the console output thread as a client
-            consoleOutputExecutor.submit(new ConsoleOutputClient(LOOPBACK_ADDRESS, MY_PORT));
+            consoleInputHandlerExecutor.submit(new ConsoleClient(LOOPBACK_ADDRESS, MY_PORT));
             Socket consoleSocket = miniServerSocket.accept();
             clientHandlerExecutor.submit(new ClientHandler(consoleSocket));
 
@@ -64,8 +64,7 @@ public class Server {
                 }
             }
             clientHandlerExecutor.shutdown();
-            consoleOutputExecutor.shutdown();
-            inputHandlerExecutor.shutdown();
+            consoleInputHandlerExecutor.shutdown();
             System.out.println("Main: cerrando todo");
         }
     }
