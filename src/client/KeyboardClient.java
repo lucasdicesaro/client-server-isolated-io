@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
+import common.PackagingUtil;
+
 // Client handler for keyboard input
 public class KeyboardClient implements Runnable {
     private PrintWriter serverOut;
@@ -19,7 +21,7 @@ public class KeyboardClient implements Runnable {
 
             String inputLine;
             while ((inputLine = keyboardReader.readLine()) != null) {
-                serverOut.println(inputLine);
+                serverOut.println(PackagingUtil.addClientPreffix(inputLine));
             }
 
         } catch (IOException e) {

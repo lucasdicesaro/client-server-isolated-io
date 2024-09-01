@@ -9,11 +9,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import common.PackagingUtil;
+
 // Handler for clients
 public class ClientHandler implements Runnable {
 
     private static final int KEYBOARD_ID = 1;
-    // private static final int CONSOLE_ID = 2;
+    private static final int CONSOLE_ID = 2;
 
     private static Set<server.Client> clients = new HashSet<>();
     private static final AtomicInteger clientIdCounter = new AtomicInteger(1);
@@ -37,11 +39,19 @@ public class ClientHandler implements Runnable {
 
             String message;
             while ((message = in.readLine()) != null) {
-                // Print the message to the console
-                System.out.println("Received from client: " + message);
-
-                // Forward the message to all connected clients
-                forwardToAllClients(message);
+                if (PackagingUtil.isFromKeyboardToClients(message)) {
+                    // Forward keyboard message to all connected clients
+                    System.out.println("Received from Keyboard to all client: " + message);
+                    forwardToAllClients(message);
+                } else if (PackagingUtil.isFromKeyboardToConsole(message)) {
+                    // Forward keyboard message to console
+                    System.out.println("Received from Keyboard to console: " + message);
+                    forwardToConsole(message);
+                } else if (PackagingUtil.isFromClientToClients(message)) {
+                    // Forward received message from client to all connected clients
+                    System.out.println("Received from Client to all client: " + message);
+                    forwardToAllClients(message);
+                }
             }
 
         } catch (IOException e) {
@@ -64,9 +74,20 @@ public class ClientHandler implements Runnable {
     private void forwardToAllClients(String message) {
         System.out.println("Enviando a todos [" + message + "]");
         for (server.Client client : clients) {
-            if (client.getId() != KEYBOARD_ID) {
+            if (client.getId() != KEYBOARD_ID && client.getId() != CONSOLE_ID) {
                 System.out.println("Enviando a [" + client.getId() + "] [" + message + "]");
                 client.getWriter().println(message);
+            }
+        }
+    }
+
+    private void forwardToConsole(String message) {
+        System.out.println("Enviando a console [" + message + "]");
+        for (server.Client client : clients) {
+            if (client.getId() == CONSOLE_ID) {
+                System.out.println("Enviando a [" + client.getId() + "] [" + message + "]");
+                client.getWriter().println(message);
+                return;
             }
         }
     }

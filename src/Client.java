@@ -12,21 +12,21 @@ public class Client {
     private static final int SERVER_PORT = 12345;
 
     private static final String LOOPBACK_ADDRESS = "localhost";
-    private static final int MY_PORT = 12347;
 
     public static void main(String[] args) {
         ExecutorService consoleInputHandlerExecutor = Executors.newFixedThreadPool(2);
         ServerSocket localMiniServerSocket = null;
         Socket mainServerSocket = null;
         try {
-            localMiniServerSocket = new ServerSocket(MY_PORT);
+            int miniServerPort = nextFreePort();
+            localMiniServerSocket = new ServerSocket(miniServerPort);
             mainServerSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
             BufferedReader serverIn = new BufferedReader(new InputStreamReader(mainServerSocket.getInputStream()));
             PrintWriter serverOut = new PrintWriter(mainServerSocket.getOutputStream(), true);
             System.out.println("Client started.");
 
             // Start the console output thread as a client
-            consoleInputHandlerExecutor.submit(new ConsoleClient(LOOPBACK_ADDRESS, MY_PORT));
+            consoleInputHandlerExecutor.submit(new ConsoleClient(LOOPBACK_ADDRESS, miniServerPort));
             Socket consoleSocket = localMiniServerSocket.accept();
             // We open PrintWriter to write in console.
             PrintWriter consoleOut = new PrintWriter(consoleSocket.getOutputStream(), true);
@@ -64,6 +64,12 @@ public class Client {
         } finally {
             System.out.println("Main: cerrando");
             consoleInputHandlerExecutor.shutdown();
+        }
+    }
+
+    public static int nextFreePort() throws IOException {
+        try (ServerSocket tempSocket = new ServerSocket(0)) {
+            return tempSocket.getLocalPort();
         }
     }
 }

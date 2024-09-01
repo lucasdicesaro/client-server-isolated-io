@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import common.PackagingUtil;
+
 // Client handler for keyboard input
 public class KeyboardClient implements Runnable {
     private String serverAddress;
@@ -24,11 +26,12 @@ public class KeyboardClient implements Runnable {
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
+            showUsage();
             String inputLine;
             while ((inputLine = keyboardReader.readLine()) != null) {
                 System.out.println("Recibido teclado: " + inputLine);
-                out.println(inputLine);
-                System.out.println("Enviado al proceso principal: " + inputLine);
+                out.println(PackagingUtil.addKeyboardPreffix(inputLine));
+                showUsage();
             }
 
         } catch (IOException e) {
@@ -42,5 +45,12 @@ public class KeyboardClient implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected void showUsage() {
+        System.out.print("Opciones:\n" +
+                PackagingUtil.MESSAGE_TO_CLIENTS_COMMAND + " <message> - Mensaje a los clientes.\n" +
+                PackagingUtil.MESSAGE_TO_CONSOLE_COMMAND + " <message> - Mensaje a la consola.\n" +
+                "> ");
     }
 }
